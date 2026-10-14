@@ -1,0 +1,75 @@
+<h1>Pokédex</h1>
+
+<div class="controls">
+  <input
+    type="search"
+    placeholder="Buscar por nombre o nº…"
+    [value]="query()"
+    (input)="onSearch($event)"
+    aria-label="Buscar Pokémon"
+  />
+  <select
+    [value]="selectedType() ?? ''"
+    (change)="onTypeChange($event)"
+    aria-label="Filtrar por tipo"
+  >
+    <option value="">Todos los tipos</option>
+    @for (type of types(); track type.name) {
+      <option [value]="type.name">{{ type.name }}</option>
+    }
+  </select>
+</div>
+
+@if (loading()) {
+  <p class="status">Cargando Pokémon…</p>
+} @else if (error()) {
+  <p class="status error">No se pudo cargar la lista. Revisa tu conexión.</p>
+} @else if (filtered().length === 0) {
+  <p class="status">Sin resultados.</p>
+} @else {
+  <p class="count">{{ filtered().length }} Pokémon</p>
+  <div class="grid">
+    @for (p of filtered(); track p.id) {
+      <app-pokemon-card [pokemon]="p" (select)="openDetail($event)" />
+    }
+  </div>
+}
+
+@if (detailLoading()) {
+  <div class="backdrop" role="status">
+    <div class="detail"><p class="status">Cargando detalle…</p></div>
+  </div>
+} @else if (detail(); as d) {
+  <div class="backdrop" (click)="closeDetail()">
+    <div
+      class="detail"
+      role="dialog"
+      aria-modal="true"
+      [attr.aria-label]="d.name"
+      (click)="$event.stopPropagation()"
+    >
+      <button type="button" class="close" (click)="closeDetail()" aria-label="Cerrar">×</button>
+      <img [src]="spriteUrl(d.id)" [alt]="d.name" width="160" height="160" />
+      <h2>
+        <span class="detail-number">#{{ d.id.toString().padStart(3, '0') }}</span> {{ d.name }}
+      </h2>
+      <div class="types">
+        @for (t of d.types; track t.slot) {
+          <span class="type" [style.background]="typeColor(t.type.name)">{{ t.type.name }}</span>
+        }
+      </div>
+      <p class="measure">Altura: {{ d.height / 10 }} m · Peso: {{ d.weight / 10 }} kg</p>
+      <ul class="stats">
+        @for (s of d.stats; track s.stat.name) {
+          <li>
+            <span class="stat-name">{{ s.stat.name }}</span>
+            <span class="stat-bar"
+              ><span class="stat-fill" [style.width.%]="(s.base_stat / 255) * 100"></span
+            ></span>
+            <span class="stat-value">{{ s.base_stat }}</span>
+          </li>
+        }
+      </ul>
+    </div>
+  </div>
+}

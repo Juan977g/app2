@@ -1,0 +1,98 @@
+name: Build y despliegue en GitHub Pages
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pages-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  quality:
+    name: Angular Doctor
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Ejecutar Angular Doctor
+        id: doctor
+        uses: antonygiomarxdev/angular-doctor@v1.3.0
+        with:
+          directory: .
+          verbose: true
+          node-version: 22
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          score-threshold: 70
+      - name: Comprobar puntuación mínima
+        run: |
+          score="${{ steps.doctor.outputs.score }}"
+          threshold=70
+          echo "Score: ${score:-desconocido} / 100 (mínimo $threshold)"
+          if [ -n "$score" ] && [ "$score" -lt "$threshold" ]; then
+            echo "::error::Puntuación $score por debajo del mínimo $threshold"
+            exit 1
+          fi
+
+  build:
+    name: Build y tests
+    needs: quality
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Calcular base-href según el tipo de repo
+        id: base
+        run: |
+          repo='${{ github.event.repository.name }}'
+          if [[ "$repo" == *.github.io ]]; then value=/; else value="/$repo/"; fi
+          echo "value=$value" >> "$GITHUB_OUTPUT"
+      - name: Build de producción
+        run: npx ng build --base-href '${{ steps.base.outputs.value }}'
+      - name: Tests
+        run: npx ng test --no-watch
+      - name: Garantizar index.html para GitHub Pages
+        run: |
+          browser=dist/app2/browser
+          # Sin rutas prerenderizadas Angular emite index.csr.html; Pages solo sirve index.html.
+          if [ ! -f "$browser/index.html" ] && [ -f "$browser/index.csr.html" ]; then
+            cp "$browser/index.csr.html" "$browser/index.html"
+            echo "No se prerenderizó ninguna ruta; se publica index.csr.html como index.html."
+          fi
+          test -f "$browser/index.html" || { echo "::error::No existe $browser/index.html"; exit 1; }
+          echo "Contenido del artefacto:"
+          ls -la "$browser"
+      - uses: actions/configure-pages@v6
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: dist/app2/browser
+
+  deploy:
+    name: Desplegar en GitHub Pages
+    needs: build
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    permissions:
+      pages: write
+      id-token: write
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v5

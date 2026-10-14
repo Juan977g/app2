@@ -1,0 +1,10 @@
+<button
+  type="button"
+  class="card"
+  (click)="select.emit(pokemon())"
+  [attr.aria-label]="'Ver detalle de ' + pokemon().name"
+>
+  <span class="number">#{{ pokemon().id.toString().padStart(3, '0') }}</span>
+  <img [src]="spriteUrl" [alt]="pokemon().name" width="96" height="96" loading="lazy" />
+  <span class="name">{{ pokemon().name }}</span>
+</button>

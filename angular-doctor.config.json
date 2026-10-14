@@ -1,0 +1,5 @@
+{
+  "ignore": {
+    "rules": ["eslint/parse-error"]
+  }
+}

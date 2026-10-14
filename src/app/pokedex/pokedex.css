@@ -1,0 +1,143 @@
+:host {
+  display: block;
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: 1rem;
+  font-family: inherit;
+}
+
+h1 {
+  text-align: center;
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.controls input,
+.controls select {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #ccc;
+  border-radius: 0.5rem;
+  font: inherit;
+}
+
+.count {
+  text-align: center;
+  color: #666;
+}
+
+.status {
+  text-align: center;
+  padding: 2rem 0;
+  color: #666;
+}
+
+.status.error {
+  color: #c0392b;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(9.5rem, 1fr));
+  gap: 0.75rem;
+}
+
+/* Modal de detalle */
+.backdrop {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgb(0 0 0 / 50%);
+  padding: 1rem;
+  z-index: 10;
+}
+
+.detail {
+  position: relative;
+  background: #fff;
+  border-radius: 1rem;
+  padding: 1.5rem;
+  max-width: 22rem;
+  width: 100%;
+  text-align: center;
+}
+
+.detail h2 {
+  margin: 0.5rem 0;
+  text-transform: capitalize;
+}
+
+.detail-number {
+  color: #888;
+  font-size: 1rem;
+  font-weight: 400;
+}
+
+.close {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.75rem;
+  border: 0;
+  background: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+.types {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+.type {
+  color: #fff;
+  padding: 0.15rem 0.75rem;
+  border-radius: 1rem;
+  font-size: 0.85rem;
+  text-transform: capitalize;
+}
+
+.measure {
+  color: #555;
+}
+
+.stats {
+  list-style: none;
+  margin: 1rem 0 0;
+  padding: 0;
+  display: grid;
+  gap: 0.35rem;
+}
+
+.stats li {
+  display: grid;
+  grid-template-columns: 6.5rem 1fr 2.5rem;
+  align-items: center;
+  gap: 0.5rem;
+  text-transform: capitalize;
+  font-size: 0.85rem;
+}
+
+.stat-bar {
+  height: 0.5rem;
+  background: #e0e0e0;
+  border-radius: 1rem;
+  overflow: hidden;
+}
+
+.stat-fill {
+  display: block;
+  height: 100%;
+  background: #4caf50;
+}
+
+.stat-value {
+  text-align: right;
+}

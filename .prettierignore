@@ -1,0 +1,6 @@
+# Build output and caches — never format generated files
+dist/
+.angular/
+coverage/
+node_modules/
+tmp/

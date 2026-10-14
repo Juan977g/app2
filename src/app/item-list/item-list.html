@@ -1,0 +1,11 @@
+<h2>Items</h2>
+<ul>
+  @for (item of items(); track item.id) {
+    <li>
+      <label>
+        <input type="checkbox" [checked]="item.done" (change)="toggle(item)" />
+        <span>{{ item.name }}</span>
+      </label>
+    </li>
+  }
+</ul>
